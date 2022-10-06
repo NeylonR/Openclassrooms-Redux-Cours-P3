@@ -5,7 +5,8 @@ export const setTheme = (theme = 'light') => ({
     payload: theme,
 })
 
-export default function reducer(state = "light", action){
+const initialState = "dark";
+export default function reducer(state = initialState, action){
     if(action.type === 'theme/toggle'){
         return state === 'light' ? 'dark' : 'light';
     }

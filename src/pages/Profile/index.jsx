@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react'
-import styled from 'styled-components'
-import { useParams } from 'react-router-dom'
-import colors from '../../utils/style/colors'
-import { useSelector } from 'react-redux'
-import { selectTheme } from '../../utils/selectors'
+import { useEffect } from 'react';
+import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
+import colors from '../../utils/style/colors';
+import { useSelector } from 'react-redux';
+import { selectTheme } from '../../utils/selectors';
+import { useStore } from 'react-redux';
+import { selectProfile } from '../../utils/selectors';
+import { fetchOrUpdateProfile } from '../../features/profile';
 
 const ProfileWrapper = styled.div`
   display: flex;
@@ -89,19 +92,18 @@ const Availability = styled.span`
 `
 
 function Profile() {
-  const theme = useSelector(selectTheme)
-  const { id: queryId } = useParams()
-  const [profileData, setProfileData] = useState({})
+  const store = useStore();
+  const theme = useSelector(selectTheme);
+  const { id: freelanceId } = useParams();
+  const profile = useSelector(selectProfile(freelanceId));
+  const profileData = profile.data?.freelanceData ?? {};
+  
   useEffect(() => {
-    fetch(`http://localhost:8000/freelance?id=${queryId}`)
-      .then((response) => response.json())
-      .then((jsonResponse) => {
-        setProfileData(jsonResponse?.freelanceData)
-      })
-  }, [queryId])
+    fetchOrUpdateProfile(store, freelanceId);
+  }, [store, freelanceId]);
 
   const { picture, name, location, tjm, job, skills, available, id } =
-    profileData
+    profileData;
 
   return (
     <ProfileWrapper theme={theme}>
