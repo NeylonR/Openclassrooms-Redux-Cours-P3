@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { selectProfile } from '../../utils/selectors';
 import { fetchOrUpdateProfile } from '../../features/profile';
 
+
 const ProfileWrapper = styled.div`
   display: flex;
   flex-direction: row;
