@@ -15,18 +15,20 @@ const profileRejected = createAction(
   (freelanceId, error) => ({ payload: {freelanceId, error} })
 );
 
-export async function fetchOrUpdateProfile(store, freelanceId){
+export function fetchOrUpdateProfile(freelanceId){
+  return async (dispatch, getState) => {
     const selectFreelancesById = selectProfile(freelanceId);
-    const status = selectFreelancesById(store.getState()).status;
+    const status = selectFreelancesById(getState()).status;
     if(status === 'pending' || status === 'updating') return;
-    store.dispatch(profileFetching(freelanceId));
+    dispatch(profileFetching(freelanceId));
     try {
         const response = await fetch(`http://localhost:8000/freelance?id=${freelanceId}`);
         const data = await response.json();
-        store.dispatch(profileResolved(freelanceId, data));
+        dispatch(profileResolved(freelanceId, data));
     } catch (error) {
-        store.dispatch(profileRejected(freelanceId, error));
+        dispatch(profileRejected(freelanceId, error));
     }
+  }
 };
 
 function setVoidIfUndefined(draft, freelanceId) {

@@ -6,8 +6,10 @@ import colors from '../../utils/style/colors'
 import { Loader } from '../../utils/style/Atoms'
 import { SurveyContext } from '../../utils/context'
 import { useFetch } from '../../utils/hooks'
-import { useSelector } from 'react-redux'
-import { selectTheme } from '../../utils/selectors'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectSurvey, selectTheme } from '../../utils/selectors'
+import { useEffect } from 'react'
+import { fetchOrUpdateSurvey } from '../../features/survey'
 
 const SurveyContainer = styled.div`
   display: flex;
@@ -69,16 +71,21 @@ function Survey() {
   const prevQuestionNumber = questionNumberInt === 1 ? 1 : questionNumberInt - 1
   const nextQuestionNumber = questionNumberInt + 1
   const theme = useSelector(selectTheme)
-
+  const dispatch = useDispatch();
   const { saveAnswers, answers } = useContext(SurveyContext)
+  const survey = useSelector(selectSurvey);
+  const surveyData = survey.data?.surveyData;
+  const isLoading = survey.status === 'void' || survey.status === 'pending';
+
+  useEffect(() => {
+    dispatch(fetchOrUpdateSurvey);
+  }, [dispatch]);
 
   function saveReply(answer) {
     saveAnswers({ [questionNumber]: answer })
   }
-  const { data, isLoading, error } = useFetch(`http://localhost:8000/survey`)
-  const surveyData = data?.surveyData
 
-  if (error) {
+  if (survey.status === 'rejected') {
     return <span>Il y a un problème</span>
   }
 

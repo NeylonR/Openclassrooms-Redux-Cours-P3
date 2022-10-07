@@ -1,38 +1,39 @@
 import { createAction, createReducer } from "@reduxjs/toolkit";
-import { selectFreelances } from "../utils/selectors";
+import { selectSurvey } from "../utils/selectors";
+
 const initialState = {
     status: 'void',
     data: null,
     error: null,
-}
+};
 
-const freelancesFetching = createAction('freelances/fetching');
-const freelancesResolved = createAction(
-    'freelances/resolved',
-    (data) => ({ payload: {data} })
+const surveyFetching = createAction('survey/fetching');
+const surveyResolved = createAction(
+    'survey/resolved',
+    (data) => ({ payload: {data}})
 );
-const freelancesRejected = createAction(
-    'freelances/rejected',
-    (error) => ({ payload: {error} })
+const surveyRejected = createAction(
+    'survey/rejected',
+    (error) => ({ payload: {error}})
 );
 
-
-export async function fetchOrUpdateFreelances(dispatch, getState){
-    const status = selectFreelances(getState()).status;
-    if(status === 'pending' || status === 'updating') return;
-    dispatch(freelancesFetching());
-    try {
-        const response = await fetch('http://localhost:8000/freelances');
-        const data = await response.json();
-        dispatch(freelancesResolved(data));
-    } catch (error) {
-        dispatch(freelancesRejected(error));
+export async function fetchOrUpdateSurvey(dispatch, getState){
+    const status = selectSurvey(getState()).status;
+    if (status === 'pending' || status === 'updating') {
+      return;
     }
-    
-}
+    dispatch(surveyFetching());
+    try {
+      const response = await fetch('http://localhost:8000/survey');
+      const data = await response.json();
+      dispatch(surveyResolved(data));
+    } catch (error) {
+      dispatch(surveyRejected(error));
+    }
+};
 
-export default createReducer(initialState, builder => builder
-    .addCase(freelancesFetching, (draft, action) => {
+export default createReducer(initialState, builder => builder 
+    .addCase(surveyFetching, (draft, action) => {
         if(draft.status === 'void'){
             draft.status = 'pending';
             return
@@ -48,7 +49,7 @@ export default createReducer(initialState, builder => builder
         };
         return;
     })
-    .addCase(freelancesResolved, (draft, action) => {
+    .addCase(surveyResolved, (draft, action) => {
         if(draft.status === 'pending' || draft.status === 'updating'){
             draft.data = action.payload.data;
             draft.status = 'resolved';
@@ -56,7 +57,7 @@ export default createReducer(initialState, builder => builder
         }
         return;
     })
-    .addCase(freelancesRejected, (draft, action) => {
+    .addCase(surveyRejected, (draft, action) => {
         if(draft.status === 'pending' || draft.status === 'updating'){
             draft.error = action.payload.error;
             draft.data = null;

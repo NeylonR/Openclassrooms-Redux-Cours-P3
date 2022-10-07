@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux'
 import { selectFreelances, selectTheme } from '../../utils/selectors'
 import { useEffect } from 'react'
 import { fetchOrUpdateFreelances } from '../../features/freelances'
-import { useStore } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 const CardsContainer = styled.div`
   display: grid;
@@ -40,16 +40,16 @@ const LoaderWrapper = styled.div`
 `
 
 function Freelances() {
-  const store = useStore();
   const theme = useSelector(selectTheme)
   const freelances = useSelector(selectFreelances);
+  const dispatch = useDispatch();
 
   const freelancersList = freelances.data?.freelancersList
   const isLoading = freelances.status === 'void' || freelances.status === 'pending';
 
   useEffect(() => {
-    fetchOrUpdateFreelances(store);
-  }, [store]);
+    dispatch(fetchOrUpdateFreelances);
+  }, [dispatch]);
 
   if (freelances.status === 'rejected') {
     return <span>Il y a un problème</span>

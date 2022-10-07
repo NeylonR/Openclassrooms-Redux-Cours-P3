@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import colors from '../../utils/style/colors';
 import { useSelector } from 'react-redux';
 import { selectTheme } from '../../utils/selectors';
-import { useStore } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { selectProfile } from '../../utils/selectors';
 import { fetchOrUpdateProfile } from '../../features/profile';
 
@@ -92,15 +92,15 @@ const Availability = styled.span`
 `
 
 function Profile() {
-  const store = useStore();
+  const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const { id: freelanceId } = useParams();
   const profile = useSelector(selectProfile(freelanceId));
   const profileData = profile.data?.freelanceData ?? {};
   
   useEffect(() => {
-    fetchOrUpdateProfile(store, freelanceId);
-  }, [store, freelanceId]);
+    dispatch(fetchOrUpdateProfile(freelanceId));
+  }, [dispatch, freelanceId]);
 
   const { picture, name, location, tjm, job, skills, available, id } =
     profileData;
