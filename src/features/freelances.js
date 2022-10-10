@@ -1,10 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { selectFreelances } from "../utils/selectors";
+
 const initialState = {
     status: 'void',
     data: null,
     error: null,
 }
+
 const { actions, reducer } = createSlice({
     name: 'freelances',
     initialState: initialState,

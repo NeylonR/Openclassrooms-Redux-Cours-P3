@@ -1,23 +1,35 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useReducer } from 'react'
 
+function fetchReducer(state, action){
+  if(action.type === 'fetching'){
+    return { ...state, isLoading: true };
+  }
+  if(action.type === 'resolved'){
+    return { ...state, isLoading: false, data: action.payload, error: null}
+  }
+  if(action.type === 'rejected'){
+    return { ...state, isLoading: false, data: null, error: action.payload}
+  }
+}
 export function useFetch(url) {
-  const [data, setData] = useState({})
-  const [isLoading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const [state, dispatch] = useReducer(fetchReducer, {
+    isLoading: true,
+    data: null,
+    error: null
+  });
+  const { isLoading, data, error } = state;
 
   useEffect(() => {
     if (!url) return
-    setLoading(true)
+    dispatch({ type: 'fetching'});
     async function fetchData() {
       try {
         const response = await fetch(url)
         const data = await response.json()
-        setData(data)
+        dispatch({ type: 'resolved', payload: data });
       } catch (err) {
         console.log(err)
-        setError(true)
-      } finally {
-        setLoading(false)
+        dispatch({ type: 'rejected', payload: err });
       }
     }
     fetchData()

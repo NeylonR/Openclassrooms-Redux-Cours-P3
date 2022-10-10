@@ -5,10 +5,9 @@ import styled from 'styled-components'
 import colors from '../../utils/style/colors'
 import { Loader } from '../../utils/style/Atoms'
 import { SurveyContext } from '../../utils/context'
-import { useSelector, useDispatch } from 'react-redux'
-import { selectSurvey, selectTheme } from '../../utils/selectors'
-import { useEffect } from 'react'
-import { fetchOrUpdateSurvey } from '../../features/survey'
+import { useSelector } from 'react-redux'
+import { selectTheme } from '../../utils/selectors'
+import { useQuery } from 'react-query'
 
 const SurveyContainer = styled.div`
   display: flex;
@@ -70,21 +69,20 @@ function Survey() {
   const prevQuestionNumber = questionNumberInt === 1 ? 1 : questionNumberInt - 1
   const nextQuestionNumber = questionNumberInt + 1
   const theme = useSelector(selectTheme)
-  const dispatch = useDispatch();
   const { saveAnswers, answers } = useContext(SurveyContext)
-  const survey = useSelector(selectSurvey);
-  const surveyData = survey.data?.surveyData;
-  const isLoading = survey.status === 'void' || survey.status === 'pending';
-
-  useEffect(() => {
-    dispatch(fetchOrUpdateSurvey);
-  }, [dispatch]);
 
   function saveReply(answer) {
     saveAnswers({ [questionNumber]: answer })
   }
+  const {data, error, isLoading} = useQuery('survey', async () => {
+    const response = await fetch(`http://localhost:8000/survey`);
+    const data = await response.json();
+    return data;
+  });
 
-  if (survey.status === 'rejected') {
+  const surveyData = data?.surveyData;
+
+  if (error) {
     return <span>Il y a un problème</span>
   }
 

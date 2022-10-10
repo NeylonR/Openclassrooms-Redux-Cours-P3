@@ -1,13 +1,9 @@
-import { useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import colors from '../../utils/style/colors';
 import { useSelector } from 'react-redux';
 import { selectTheme } from '../../utils/selectors';
-import { useDispatch } from 'react-redux';
-import { selectProfile } from '../../utils/selectors';
-import { fetchOrUpdateProfile } from '../../features/profile';
-
+import { useQuery } from 'react-query';
 
 const ProfileWrapper = styled.div`
   display: flex;
@@ -93,18 +89,18 @@ const Availability = styled.span`
 `
 
 function Profile() {
-  const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const { id: freelanceId } = useParams();
-  const profile = useSelector(selectProfile(freelanceId));
-  const profileData = profile.data?.freelanceData ?? {};
   
-  useEffect(() => {
-    dispatch(fetchOrUpdateProfile(freelanceId));
-  }, [dispatch, freelanceId]);
+  const {data} =
+    useQuery(['freelance', freelanceId], async () => {
+      const response = await fetch(`http://localhost:8000/freelance?id=${freelanceId}`);
+      const data = await response.json();
+      return data;
+    });
 
-  const { picture, name, location, tjm, job, skills, available, id } =
-    profileData;
+  const profileData = data?.freelanceData ?? {};
+  const { picture, name, location, tjm, job, skills, available, id } = profileData;
 
   return (
     <ProfileWrapper theme={theme}>
